@@ -209,10 +209,12 @@ class Provider:
             git = Git()
             git.clone(url, tmp_dir)
             reference = branch or tag or rev
-            if reference is not None:
-                git.checkout(reference, tmp_dir)
-            else:
-                reference = "HEAD"
+
+            if reference is None:
+                # Figuring out the branch name
+                reference = git.run("symbolic-ref", "--short", "HEAD", folder=tmp_dir)
+
+            git.checkout(reference, tmp_dir)
 
             revision = git.rev_parse(reference, tmp_dir).strip()
 

@@ -407,8 +407,8 @@ importlib-metadata = {version = ">=1.7.0", markers = "python_version < \"3.8\""}
 [package.source]
 type = "git"
 url = "https://github.com/python-poetry/poetry-core.git"
-reference = "master"
-resolved_reference = "afaa6903f654b695d9411fb548ad10630287c19f"
+reference = "better-git-handling"
+resolved_reference = "954fecae38896ff2c9c8477258e1bdd7f28e2c7a"
 
 [[package]]
 name = "pre-commit"
@@ -708,7 +708,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "e38d34da68dcd63ef9f9d999f60b8e19d8da7f988031c3a6e6865d51c1fadeda"
+content-hash = "e6706c44f40119fa76dd9b337d497318072047aac1615ec7980aea288a000f4e"
 
 [metadata.files]
 appdirs = [
