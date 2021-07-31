@@ -55,9 +55,6 @@ def setup(mocker, installer, installed, config, env):
     # Patch the virtual environment creation do actually do nothing
     mocker.patch("poetry.utils.env.EnvManager.create_venv", return_value=env)
 
-    # Patch the virtual environment creation do actually do nothing
-    mocker.patch("poetry.utils.env.EnvManager.create_venv", return_value=env)
-
     # Setting terminal width
     environ = dict(os.environ)
     os.environ["COLUMNS"] = "80"
@@ -74,10 +71,8 @@ def project_directory():
 
 
 @pytest.fixture
-def poetry(repo, project_directory, config):
-    p = Factory().create_poetry(
-        Path(__file__).parent.parent / "fixtures" / project_directory
-    )
+def poetry(repo, project_directory, fixture_dir, config):
+    p = Factory().create_poetry(fixture_dir(project_directory))
     p.set_locker(TestLocker(p.locker.lock.path, p.locker._local_config))
 
     with p.file.path.open(encoding="utf-8") as f:

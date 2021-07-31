@@ -53,6 +53,11 @@ class Config(BaseConfig):
         return super(Config, self).all()
 
 
+# The fixtures directory. We copy files from here to a test-specific execution
+# directory, as some tests mutate the files within.
+FIXTURE_DIR = Path(__file__).parent / "fixtures"
+
+
 @pytest.fixture
 def config_cache_dir(tmp_dir):
     path = Path(tmp_dir) / ".cache" / "pypoetry"
@@ -163,8 +168,12 @@ def http():
 
 
 @pytest.fixture
-def fixture_base():
-    return Path(__file__).parent / "fixtures"
+def fixture_base(tmp_path):
+    # Copy all the fixture data to a temporary per-test fixture folder.
+    # This is necessary because our tests mutate data inside.
+    test_base = tmp_path / "fixtures"
+    shutil.copytree(FIXTURE_DIR, test_base)
+    return test_base
 
 
 @pytest.fixture
