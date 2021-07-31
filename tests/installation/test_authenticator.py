@@ -18,7 +18,8 @@ def mock_remote(http):
     )
 
 
-def test_authenticator_uses_url_provided_credentials(config, mock_remote, http):
+@pytest.mark.usefixtures("mock_remote")
+def test_authenticator_uses_url_provided_credentials(config, http):
     config.merge(
         {
             "repositories": {"foo": {"url": "https://foo.bar/simple/"}},
@@ -34,9 +35,8 @@ def test_authenticator_uses_url_provided_credentials(config, mock_remote, http):
     assert "Basic Zm9vMDAxOmJhcjAwMg==" == request.headers["Authorization"]
 
 
-def test_authenticator_uses_credentials_from_config_if_not_provided(
-    config, mock_remote, http
-):
+@pytest.mark.usefixtures("mock_remote")
+def test_authenticator_uses_credentials_from_config_if_not_provided(config, http):
     config.merge(
         {
             "repositories": {"foo": {"url": "https://foo.bar/simple/"}},
@@ -52,7 +52,8 @@ def test_authenticator_uses_credentials_from_config_if_not_provided(
     assert "Basic YmFyOmJheg==" == request.headers["Authorization"]
 
 
-def test_authenticator_uses_username_only_credentials(config, mock_remote, http):
+@pytest.mark.usefixtures("mock_remote")
+def test_authenticator_uses_username_only_credentials(config, http):
     config.merge(
         {
             "repositories": {"foo": {"url": "https://foo.bar/simple/"}},
@@ -68,7 +69,8 @@ def test_authenticator_uses_username_only_credentials(config, mock_remote, http)
     assert "Basic Zm9vMDAxOg==" == request.headers["Authorization"]
 
 
-def test_authenticator_uses_password_only_credentials(config, mock_remote, http):
+@pytest.mark.usefixtures("mock_remote")
+def test_authenticator_uses_password_only_credentials(config, http):
     config.merge(
         {
             "repositories": {"foo": {"url": "https://foo.bar/simple/"}},
@@ -84,9 +86,8 @@ def test_authenticator_uses_password_only_credentials(config, mock_remote, http)
     assert "Basic OmJhcjAwMg==" == request.headers["Authorization"]
 
 
-def test_authenticator_uses_empty_strings_as_default_password(
-    config, mock_remote, http
-):
+@pytest.mark.usefixtures("mock_remote")
+def test_authenticator_uses_empty_strings_as_default_password(config, http):
     config.merge(
         {
             "repositories": {"foo": {"url": "https://foo.bar/simple/"}},
@@ -102,9 +103,8 @@ def test_authenticator_uses_empty_strings_as_default_password(
     assert "Basic YmFyOg==" == request.headers["Authorization"]
 
 
-def test_authenticator_uses_empty_strings_as_default_username(
-    config, mock_remote, http
-):
+@pytest.mark.usefixtures("mock_remote")
+def test_authenticator_uses_empty_strings_as_default_username(config, http):
     config.merge(
         {
             "repositories": {"foo": {"url": "https://foo.bar/simple/"}},
@@ -120,7 +120,8 @@ def test_authenticator_uses_empty_strings_as_default_username(
     assert "Basic OmJhcg==" == request.headers["Authorization"]
 
 
-def test_authenticator_request_retries_on_exception(mocker, config, http):
+@pytest.mark.usefixtures("http")
+def test_authenticator_request_retries_on_exception(mocker, config):
     sleep = mocker.patch("time.sleep")
     sdist_uri = "https://foo.bar/files/{}/foo-0.1.0.tar.gz".format(str(uuid.uuid4()))
     content = str(uuid.uuid4())
@@ -140,9 +141,8 @@ def test_authenticator_request_retries_on_exception(mocker, config, http):
     assert sleep.call_count == 2
 
 
-def test_authenticator_request_raises_exception_when_attempts_exhausted(
-    mocker, config, http
-):
+@pytest.mark.usefixtures("http")
+def test_authenticator_request_raises_exception_when_attempts_exhausted(mocker, config):
     sleep = mocker.patch("time.sleep")
     sdist_uri = "https://foo.bar/files/{}/foo-0.1.0.tar.gz".format(str(uuid.uuid4()))
 
@@ -158,13 +158,12 @@ def test_authenticator_request_raises_exception_when_attempts_exhausted(
     assert sleep.call_count == 5
 
 
+@pytest.mark.usefixtures("http")
 @pytest.mark.parametrize(
     "status, attempts",
     [(400, 0), (401, 0), (403, 0), (404, 0), (500, 0), (502, 5), (503, 5), (504, 5)],
 )
-def test_authenticator_request_retries_on_status_code(
-    mocker, config, http, status, attempts
-):
+def test_authenticator_request_retries_on_status_code(mocker, config, status, attempts):
     sleep = mocker.patch("time.sleep")
     sdist_uri = "https://foo.bar/files/{}/foo-0.1.0.tar.gz".format(str(uuid.uuid4()))
     content = str(uuid.uuid4())
@@ -190,9 +189,8 @@ def environment_repository_credentials(monkeypatch):
     monkeypatch.setenv("POETRY_HTTP_BASIC_FOO_PASSWORD", "baz")
 
 
-def test_authenticator_uses_env_provided_credentials(
-    config, environ, mock_remote, http, environment_repository_credentials
-):
+@pytest.mark.usefixtures("environ", "mock_remote", "environment_repository_credentials")
+def test_authenticator_uses_env_provided_credentials(config, http):
     config.merge({"repositories": {"foo": {"url": "https://foo.bar/simple/"}}})
 
     authenticator = Authenticator(config, NullIO())

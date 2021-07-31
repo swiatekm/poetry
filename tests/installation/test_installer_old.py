@@ -715,7 +715,7 @@ def test_run_installs_with_local_file(installer, locker, repo, package, fixture_
 
 
 def test_run_installs_wheel_with_no_requires_dist(
-    installer, locker, repo, package, fixture_dir
+    installer, locker, package, fixture_dir
 ):
     file_path = fixture_dir(
         "wheel_with_no_requires_dist/demo-0.1.0-py2.py3-none-any.whl"
@@ -732,7 +732,7 @@ def test_run_installs_wheel_with_no_requires_dist(
 
 
 def test_run_installs_with_local_poetry_directory_and_extras(
-    installer, locker, repo, package, tmpdir, fixture_dir
+    installer, locker, repo, package, fixture_dir
 ):
     file_path = fixture_dir("project_with_extras")
     package.add_dependency(
@@ -753,7 +753,7 @@ def test_run_installs_with_local_poetry_directory_and_extras(
 
 
 def test_run_installs_with_local_poetry_directory_transitive(
-    installer, locker, repo, package, tmpdir, fixture_dir
+    installer, locker, repo, package, fixture_dir
 ):
     root_dir = fixture_dir("directory")
     package.root_dir = root_dir
@@ -780,7 +780,7 @@ def test_run_installs_with_local_poetry_directory_transitive(
 
 
 def test_run_installs_with_local_poetry_file_transitive(
-    installer, locker, repo, package, tmpdir, fixture_dir
+    installer, locker, repo, package, fixture_dir
 ):
     root_dir = fixture_dir("directory")
     package.root_dir = root_dir
@@ -807,7 +807,7 @@ def test_run_installs_with_local_poetry_file_transitive(
 
 
 def test_run_installs_with_local_setuptools_directory(
-    installer, locker, repo, package, tmpdir, fixture_dir
+    installer, locker, repo, package, fixture_dir
 ):
     file_path = fixture_dir("project_with_setup/")
     package.add_dependency(
@@ -1349,7 +1349,7 @@ def test_run_install_duplicate_dependencies_different_constraints_with_lock_upda
     "This is not working at the moment due to limitations in the resolver"
 )
 def test_installer_test_solver_finds_compatible_package_for_dependency_python_not_fully_compatible_with_package_python(
-    installer, locker, repo, package, installed
+    installer, locker, repo, package
 ):
     package.python_versions = "~2.7 || ^3.4"
     package.add_dependency(
@@ -1431,7 +1431,7 @@ def test_installer_required_extras_should_not_be_removed_when_updating_single_de
 
 
 def test_installer_required_extras_should_not_be_removed_when_updating_single_dependency_pypi_repository(
-    locker, repo, package, installed, env, mocker, config
+    locker, package, installed, env, mocker, config
 ):
     mocker.patch("sys.platform", "darwin")
 
@@ -1473,7 +1473,7 @@ def test_installer_required_extras_should_not_be_removed_when_updating_single_de
 
 
 def test_installer_required_extras_should_be_installed(
-    locker, repo, package, installed, env, config
+    locker, package, installed, env, config
 ):
     pool = Pool()
     pool.add_repository(MockRepository())
@@ -1658,9 +1658,7 @@ def test_installer_uses_prereleases_if_they_are_compatible(
     assert len(installer.installer.installs) == 2
 
 
-def test_installer_can_handle_old_lock_files(
-    installer, locker, package, repo, installed, config
-):
+def test_installer_can_handle_old_lock_files(locker, package, installed, config):
     pool = Pool()
     pool.add_repository(MockRepository())
 

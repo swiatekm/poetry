@@ -160,9 +160,7 @@ Package operations: 4 installs, 1 update, 1 removal
     pip_editable_install.assert_called_once()
 
 
-def test_execute_shows_skipped_operations_if_verbose(
-    config, pool, io, config_cache_dir, env
-):
+def test_execute_shows_skipped_operations_if_verbose(pool, io, config_cache_dir, env):
     config = Config()
     config.merge({"cache-dir": config_cache_dir.as_posix()})
 

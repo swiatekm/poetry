@@ -31,7 +31,7 @@ def env():
     )
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def mock_pypi(http):
     def callback(request, uri, headers):
         parts = uri.rsplit("/")
@@ -56,7 +56,7 @@ def mock_pypi(http):
     )
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def mock_legacy(http):
     def callback(request, uri, headers):
         parts = uri.rsplit("/")
@@ -87,9 +87,7 @@ def pool():
 
 
 @pytest.mark.parametrize("source_type", ["", "legacy"])
-def test_chooser_chooses_universal_wheel_link_if_available(
-    env, mock_pypi, mock_legacy, source_type, pool
-):
+def test_chooser_chooses_universal_wheel_link_if_available(env, source_type, pool):
     chooser = Chooser(pool, env)
 
     package = Package("pytest", "3.5.0")
@@ -109,7 +107,7 @@ def test_chooser_chooses_universal_wheel_link_if_available(
 
 @pytest.mark.parametrize("source_type", ["", "legacy"])
 def test_chooser_chooses_specific_python_universal_wheel_link_if_available(
-    env, mock_pypi, mock_legacy, source_type, pool
+    env, source_type, pool
 ):
     chooser = Chooser(pool, env)
 
@@ -129,9 +127,7 @@ def test_chooser_chooses_specific_python_universal_wheel_link_if_available(
 
 
 @pytest.mark.parametrize("source_type", ["", "legacy"])
-def test_chooser_chooses_system_specific_wheel_link_if_available(
-    mock_pypi, mock_legacy, source_type, pool
-):
+def test_chooser_chooses_system_specific_wheel_link_if_available(source_type, pool):
     env = MockEnv(
         supported_tags=[Tag("cp37", "cp37m", "win32"), Tag("py3", "none", "any")]
     )
@@ -155,8 +151,6 @@ def test_chooser_chooses_system_specific_wheel_link_if_available(
 @pytest.mark.parametrize("source_type", ["", "legacy"])
 def test_chooser_chooses_sdist_if_no_compatible_wheel_link_is_available(
     env,
-    mock_pypi,
-    mock_legacy,
     source_type,
     pool,
 ):
@@ -180,8 +174,6 @@ def test_chooser_chooses_sdist_if_no_compatible_wheel_link_is_available(
 @pytest.mark.parametrize("source_type", ["", "legacy"])
 def test_chooser_chooses_distributions_that_match_the_package_hashes(
     env,
-    mock_pypi,
-    mock_legacy,
     source_type,
     pool,
 ):
@@ -213,8 +205,6 @@ def test_chooser_chooses_distributions_that_match_the_package_hashes(
 @pytest.mark.parametrize("source_type", ["", "legacy"])
 def test_chooser_throws_an_error_if_package_hashes_do_not_match(
     env,
-    mock_pypi,
-    mock_legacy,
     source_type,
     pool,
 ):
