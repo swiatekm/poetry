@@ -10,19 +10,15 @@ import pytest
 from cleo.io.null_io import NullIO
 from deepdiff import DeepDiff
 
-from poetry.core.packages.project_package import ProjectPackage
 from poetry.core.toml.file import TOMLFile
 from poetry.factory import Factory
-from poetry.installation import Installer as BaseInstaller
-from poetry.installation.noop_installer import NoopInstaller
-from poetry.packages import Locker as BaseLocker
 from poetry.repositories import Pool
-from poetry.repositories import Repository
-from poetry.repositories.installed_repository import InstalledRepository
 from poetry.utils.env import MockEnv
 from poetry.utils.env import NullEnv
 from tests.helpers import get_dependency
 from tests.helpers import get_package
+from tests.installation.helpers import Installer
+from tests.installation.helpers import Locker
 from tests.repositories.test_legacy_repository import (
     MockRepository as MockLegacyRepository,
 )
@@ -32,51 +28,7 @@ from tests.repositories.test_pypi_repository import MockRepository
 RESERVED_PACKAGES = ("pip", "setuptools", "wheel")
 
 
-class Installer(BaseInstaller):
-    def _get_installer(self):
-        return NoopInstaller()
-
-
-class CustomInstalledRepository(InstalledRepository):
-    @classmethod
-    def load(cls, env):
-        return cls()
-
-
-class Locker(BaseLocker):
-    def __init__(self, lock=None):
-        lock = lock or Path.cwd().joinpath("poetry.lock")
-        self._lock = TOMLFile(lock)
-        self._written_data = None
-        self._locked = False
-        self._content_hash = self._get_content_hash()
-
-    @property
-    def written_data(self):
-        return self._written_data
-
-    def set_lock_path(self, lock):
-        self._lock = TOMLFile(Path(lock).joinpath("poetry.lock"))
-
-        return self
-
-    def locked(self, is_locked=True):
-        self._locked = is_locked
-
-        return self
-
-    def mock_lock_data(self, data):
-        self._lock_data = data
-
-    def is_locked(self):
-        return self._locked
-
-    def is_fresh(self):
-        return True
-
-    def _get_content_hash(self):
-        return "123456789"
-
+class OldLocker(Locker):
     def _write_lock_data(self, data):
         for package in data["package"]:
             python_versions = str(package["python-versions"])
@@ -86,48 +38,12 @@ class Locker(BaseLocker):
         self._lock_data = data
 
 
-@pytest.fixture
-def cwd(fixture_base):
-    return fixture_base
-
-
-@pytest.fixture()
-def package(cwd):
-    p = ProjectPackage("root", "1.0")
-    p.root_dir = cwd
-
-    return p
-
-
-@pytest.fixture()
-def repo():
-    return Repository()
-
-
-@pytest.fixture()
-def pool(repo):
-    pool = Pool()
-    pool.add_repository(repo)
-
-    return pool
-
-
-@pytest.fixture()
-def installed():
-    return CustomInstalledRepository()
-
-
 @pytest.fixture()
 def locker(cwd):
     # the lockfile only matters insofar as the paths of file dependencies are stored
     # relative to its path
     lockfile = cwd / "poetry.lock"
-    return Locker(lock=lockfile)
-
-
-@pytest.fixture()
-def env():
-    return NullEnv()
+    return OldLocker(lock=lockfile)
 
 
 @pytest.fixture()
